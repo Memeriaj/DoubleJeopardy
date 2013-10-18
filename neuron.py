@@ -1,6 +1,5 @@
 __author__ = 'Icarus'
 
-import sys
 import random
 
 class Neuron:
