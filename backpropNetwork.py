@@ -73,3 +73,11 @@ class BackpropNetwork:
 
     def getNetworkOutput(self):
         return self.layers[self.numberOfLayers-1].neurons[0].getOutput()
+
+    def toFile(self):
+#        TODO: Add code to make the network be saved to a file, for later loading/refinement
+        return
+
+    def fromFile(self, fileContents):
+#        TODO: Add code for creating a network from the contents of a file
+        return

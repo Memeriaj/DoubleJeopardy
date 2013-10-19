@@ -19,6 +19,8 @@ class NetworkTrainer:
                 actualOutputs.append(network.getNetworkOutput())
                 expectedOutputs.append(answer[2])
                 network.updateWeights(answer[2])
+                if answer[1]%1000 == 0:
+                    print "On answer ", answer[1]
             #print "Actual Outputs: ", actualOutputs
             overallError = network.calculateOverallError(len(inputData), actualOutputs, expectedOutputs)
             print "Overall Error: ", overallError

@@ -12,8 +12,13 @@ def main():
     networkSizeList = [len(data[0][3]), 6, 4, 2, 1]
     network = BackpropNetwork(networkSizeList, learningRate, momentum)
 
-    NetworkTrainer.trainNetwork(network, data, 2, 1)
+    NetworkTrainer.trainNetwork(network, data, 10, 1)
     print "Done learning, that's neat"
+    #TODO: Write code to save the network after it is done running
+    #f = open("NeuralNetworkConfigurations/trained.nn", "w")
+    #f.write(network.toFile())
+
+
 
 
 if __name__ == '__main__':
