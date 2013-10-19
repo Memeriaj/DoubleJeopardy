@@ -23,7 +23,7 @@ class BackpropNetwork:
         self.layers[1].inputs = self.layers[0].inputs
 
         for i in range(1, self.numberOfLayers):
-            self.layer[i].feedForward()
+            self.layers[i].feedForward()
 
             if i != self.numberOfLayers-1:
                 self.layers[i+1].inputs = self.layers[i].getOutputs()
@@ -32,14 +32,16 @@ class BackpropNetwork:
         self.calculateSignalErrors(expectedOutput)
         self.backpropagateError()
 
-    def calculateSignalErrors(self, expectedOutput):
+    def calculateSignalErrors(self, expectedOutputBool):
         outputLayerIndex = self.numberOfLayers-1
-
+        expectedOutput = 0
+        if expectedOutputBool:
+            expectedOutput = 1
         for i in range(0, len(self.layers[outputLayerIndex].neurons)):
             self.layers[outputLayerIndex].neurons[i].signalError = (expectedOutput - self.layers[outputLayerIndex].neurons[i].output) * \
                                                                     self.layers[outputLayerIndex].neurons[i].output * \
                                                                     (1 - self.layers[outputLayerIndex].neurons[i].output)
-        for i in range(self.numberOfLayers-2, 0):
+        for i in range(self.numberOfLayers-2, 0, -1):
             for j in range(0, len(self.layers[i].neurons)):
                 errorSum = 0
                 for k in range(0, len(self.layers[i+1].neurons)):
@@ -48,25 +50,26 @@ class BackpropNetwork:
                 self.layers[i].neurons[j].signalError = self.layers[i].neurons[j].output * (1 - self.layers[i].neurons[j].output) * errorSum
 
     def backpropagateError(self):
-        for i in range(self.numberOfLayers-1, 0):
+        for i in range(self.numberOfLayers-1, 0, -1):
             for j in range(0, len(self.layers[i].neurons)):
-                threshDiff = self.learningRate * self.layers[i].neurons[j].signalError + self.momentum * self.layers[i].neurons[j]
+                threshDiff = self.learningRate * self.layers[i].neurons[j].signalError + self.momentum * self.layers[i].neurons[j].thresholdDiff
                 self.layers[i].neurons[j].thresholdDiff = threshDiff
                 self.layers[i].neurons[j].threshold = self.layers[i].neurons[j].threshold + threshDiff
-
                 for k in range(0, len(self.layers[i].inputs)):
                     weightDiff = self.learningRate*self.layers[i].neurons[j].signalError*self.layers[i-1].neurons[k].output + \
-                                 self.momentum*self.layers[i].neurons[j].weightDiff[k]
-
-                    self.layers[i].neurons[j].weightDiff[k] = weightDiff
+                                 self.momentum*self.layers[i].neurons[j].weightDiffs[k]
+                    self.layers[i].neurons[j].weightDiffs[k] = weightDiff
                     self.layers[i].neurons[j].weights[k] = self.layers[i].neurons[j].weights[k] + weightDiff
 
-    def calulateOverallError(self, numberOfTests, actualOutputs, expectedOutputs):
+    def calculateOverallError(self, numberOfTests, actualOutputs, expectedOutputs):
         errorSum = 0
         for i in range(0, numberOfTests):
             for j in range(0, len(self.layers[self.numberOfLayers-1].neurons)):
-                errorSum = errorSum + 0.5*((expectedOutputs[i]- actualOutputs)**2)
+                expectedOutput = 0
+                if expectedOutputs[i]:
+                    expectedOutput = 1
+                errorSum = errorSum + 0.5*((expectedOutput- actualOutputs[i])**2)
         return errorSum
 
     def getNetworkOutput(self):
-        return self.layers[self.numberOfLayers-1].neurons[0].getOutput
+        return self.layers[self.numberOfLayers-1].neurons[0].getOutput()

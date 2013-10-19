@@ -17,8 +17,13 @@ class NetworkLayer:
         return outputs
 
     @staticmethod
-    def sigmoid(self, netValue):
-        return 1.0/(1 + math.exp(-netValue))
+    def sigmoid(netValue):
+        if netValue > 700:
+            return 1
+        elif netValue < -700:
+            return 0
+        exponent = math.exp(-netValue)
+        return 1.0/(1.0 + exponent)
 
     def feedForward(self):
         for i in range(0, len(self.neurons)):
