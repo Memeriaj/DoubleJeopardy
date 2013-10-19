@@ -1,0 +1,183 @@
+"""class ID3:
+    def __init__(self):
+        numAttributes = 0
+        attributeNames = list()
+        domains = list()
+
+        class DataPoint:
+            def __init__(self, numberAttributes):
+                self.attributes = [numberAttributes]
+
+        class TreeNode:
+            def __init__(self):
+                self.entropy = None
+                self.data = list()
+                self.decompositionAttribute = None
+                self.decompositionValue = None
+                self.children = None
+                self.parent = None
+
+        root = TreeNode()
+        def getSymbolValue(attribute, symbol):
+            index = self.domain.index(symbol)
+            if index < 0:
+                domains[attribute].append(symbol)
+                return  len(domains[attribute]) -1
+            return index
+
+        def getAllValues(data, attribute):
+            values = list()
+            num = len(data)
+            for i in range(0,num):
+                point = data.index(i)
+                symbol = domains[attribute][point.index(attribute)]
+                index = values.index(symbol)
+                if index < 0:
+                    values.append((symbol))
+            array = [None]*len(values)
+            for i in range(0,array):
+                symbol = str(values[symbol])
+                array = domains[attribute].index(symbol)
+            values = None
+            return array
+
+        def getSubset(data, attribute, value):
+            subset = list()
+            num = len(data)
+            for i in range(0,num):
+                point = data[i]
+                if(point.index(attribute) == value):
+                    subset.append((point))
+            return  subset
+
+"""
+"""
+from math import log2
+
+class node():
+    def __init__(self, value = None, entropy = None, leftChild = None, rightChild = None,
+                 dataSet = None, decision = None):
+        self.value = value
+        self.leftChild = leftChild
+        self.rightChild = rightChild
+        self.dataSet = dataSet
+        self.decision = None
+        self.entropy = entropy
+        def entropyGet():
+            self.entropy = entropy(self.dataSet)
+        def decisionGet():
+            "compute from remaining attrobutes"
+
+def parse(fileToParse):
+    with open(fileToParse) as inFile:
+        dataCube = []
+        for line in inFile:
+            seperatedLine = line.split(',')
+            dataCube.append(seperatedLine)
+        return dataCube
+
+def entropy(set):
+    pos = 0
+    neg = 0
+    for strip in set:
+        val = strip.getItem(strip.length()-1)
+        if val:
+            pos += 1
+        else:
+            neg += 1
+    return 0-((pos)*log2(pos))-((neg)*log2(neg))
+
+def ID3(learningSet, AttributeSet, attributeValues):
+    data = parse(learningSet)
+    rootNode = node(learningSet)
+
+    return rootNode
+"""
+
+def create_decision_tree(data, attributes, target_attr, fitness_func):
+    """
+    Returns a new decision tree based on the examples given.
+    """
+    data    = data[:]
+    vals    = [record[target_attr] for record in data]
+    default = majority_value(data, target_attr)
+
+    # If the dataset is empty or the attributes list is empty, return the
+    # default value. When checking the attributes list for emptiness, we
+    # need to subtract 1 to account for the target attribute.
+    if not data or (len(attributes) - 1) <= 0:
+        return default
+    # If all the records in the dataset have the same classification,
+    # return that classification.
+    elif vals.count(vals[0]) == len(vals):
+        return vals[0]
+    else:
+        # Choose the next best attribute to best classify our data
+        best = choose_attribute(data, attributes, target_attr,
+                                fitness_func)
+
+        # Create a new decision tree/node with the best attribute and an empty
+        # dictionary object--we'll fill that up next.
+        tree = {best:{}}
+
+        # Create a new decision tree/sub-node for each of the values in the
+        # best attribute field
+        for val in get_values(data, best):
+            # Create a subtree for the current value under the "best" field
+            subtree = create_decision_tree(
+                get_examples(data, best, val),
+                [attr for attr in attributes if attr != best],
+                target_attr,
+                fitness_func)
+
+            # Add the new subtree to the empty dictionary object in our new
+            # tree/node we just created.
+            tree[best][val] = subtree
+
+    return tree
+
+def entropy(data, target_attr):
+    """
+    Calculates the entropy of the given data set for the target attribute.
+    """
+    val_freq     = {}
+    data_entropy = 0.0
+
+    # Calculate the frequency of each of the values in the target attr
+    for record in data:
+        if (val_freq.has_key(record[target_attr])):
+            val_freq[record[target_attr]] += 1.0
+        else:
+            val_freq[record[target_attr]]  = 1.0
+
+    # Calculate the entropy of the data for the target attribute
+    for freq in val_freq.values():
+        data_entropy += (-freq/len(data)) * math.log(freq/len(data), 2)
+
+    return data_entropy
+
+def gain(data, attr, target_attr):
+    """
+    Calculates the information gain (reduction in entropy) that would
+    result by splitting the data on the chosen attribute (attr).
+    """
+    val_freq       = {}
+    subset_entropy = 0.0
+
+    # Calculate the frequency of each of the values in the target attribute
+    for record in data:
+        if (val_freq.has_key(record[attr])):
+            val_freq[record[attr]] += 1.0
+        else:
+            val_freq[record[attr]]  = 1.0
+
+    # Calculate the sum of the entropy for each subset of records weighted
+    # by their probability of occuring in the training set.
+    for val in val_freq.keys():
+        val_prob        = val_freq[val] / sum(val_freq.values())
+        data_subset     = [record for record in data if record[attr] == val]
+        subset_entropy += val_prob * entropy(data_subset, target_attr)
+
+    # Subtract the entropy of the chosen attribute from the entropy of the
+    # whole data set with respect to the target attribute (and return it)
+    return (entropy(data, target_attr) - subset_entropy)
