@@ -106,7 +106,7 @@ def ID3(examples, targetAttribute, Attributes):
 def parseBoolString(string):
     return string.upper == 'TRUE'
 
-fileToParse = "testCSV.txt"
+fileToParse = "Book1.csv"
 # action = lambda dataLine: print
 
 def parseAndDoSomethingToLineData(fileToParse):
@@ -118,10 +118,10 @@ def parseAndDoSomethingToLineData(fileToParse):
             seperatedLine = line.split(',')
             length = len(seperatedLine)-1
             targetAttribute.append(seperatedLine[length])
-            eSeperatedLine = seperatedLine[:length]
+            eSeperatedLine = seperatedLine[2:length]
             examples.append(eSeperatedLine)
         for i in range(0,len(examples[0])):
             Attributes.append(i)
-        ID3(examples, targetAttribute, Attributes)
+        print(ID3(examples, targetAttribute, Attributes))
 
 parseAndDoSomethingToLineData(fileToParse)
