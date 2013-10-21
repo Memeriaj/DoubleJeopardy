@@ -3,6 +3,8 @@ class node():
         self.goodLabel = None
         self.leftChild = None
         self.rightChild = None
+        self.decision = None
+        self.cutLine = None
 
 
 def ID3(examples, targetAttribute, Attributes):
@@ -15,17 +17,17 @@ def ID3(examples, targetAttribute, Attributes):
         else:
             neg += 1
     if neg == 0:
-        root.goodLabel = True
+        root.goodLabel = 1
         return root
     elif pos == 0:
-        root.goodLabel = False
+        root.goodLabel = 0
         return root
     elif len(Attributes) == 0:
         if pos >= neg:
-            root.goodLabel = True
+            root.goodLabel = 1
             return root
         else:
-            root.goodLabel = False
+            root.goodLabel = 0
             return root
     else:
         toBeRemoved = None
@@ -74,9 +76,9 @@ def ID3(examples, targetAttribute, Attributes):
                 eMinNeg = minNeg
         if toBeRemoved == None:
             if pos >= neg:
-                root.goodLabel = True
+                root.goodLabel = 1
             else:
-                root.goodLabel = False
+                root.goodLabel = 0
             return root
         cutLine = 0
         if eMinPos > eMaxNeg:
@@ -85,6 +87,8 @@ def ID3(examples, targetAttribute, Attributes):
             cutLine = (eMinNeg + eMaxPos) / 2
         else:
             cutLine = (eMaxPos + eMinPos + eMaxNeg + eMinNeg) / 4
+        root.cutLine = cutLine
+        root.decision = toBeRemoved
         newAttributes = Attributes.remove(toBeRemoved)
         leftChild = list()
         leftChildTA = list()
@@ -103,10 +107,36 @@ def ID3(examples, targetAttribute, Attributes):
         root.rightChild = ID3(rightChild, rightChildTA, newAttributes)
         return root
 
+def getAnswer(question, tree):
+    if tree.goodLabel != None:
+        return tree.goodLabel
+    point = question[tree.decision]
+    if point <= tree.cutLine:
+        return getAnswer(question, tree.leftChild)
+    else:
+        return getAnswer(question, tree.rightChild)
+
+def getPercent(examples, targetAttribute, tree):
+    correct = 0
+    total = 0
+    x=0
+    for example in examples:
+        answer = getAnswer(example, tree)
+
+        if answer == int(targetAttribute[x]):
+            correct += 1
+        total += 1
+        x += 1
+    print(correct)
+    print(total)
+    return correct/total
+
+
 def parseBoolString(string):
     return string.upper == 'TRUE'
 
-fileToParse = "Book1.csv"
+buildFile = "smallishTrain.csv"
+testFile = "smallishTest.csv"
 # action = lambda dataLine: print
 
 def parseAndDoSomethingToLineData(fileToParse):
@@ -122,6 +152,22 @@ def parseAndDoSomethingToLineData(fileToParse):
             examples.append(eSeperatedLine)
         for i in range(0,len(examples[0])):
             Attributes.append(i)
-        print(ID3(examples, targetAttribute, Attributes))
+        return ID3(examples, targetAttribute, Attributes)
 
-parseAndDoSomethingToLineData(fileToParse)
+def parseQuestionData(fileToParse, tree):
+    with open(fileToParse) as inFile:
+        examples = list()
+        targetAttribute = list()
+        for line in inFile:
+            seperatedLine = line.split(',')
+            length = len(seperatedLine)-1
+            targetAttribute.append(seperatedLine[length])
+            eSeperatedLine = seperatedLine[2:length]
+            examples.append(eSeperatedLine)
+        print(getPercent(examples, targetAttribute, tree))
+
+def test():
+    tree = parseAndDoSomethingToLineData(buildFile)
+    parseQuestionData(testFile, tree)
+
+test()
