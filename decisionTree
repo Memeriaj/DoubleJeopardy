@@ -17,17 +17,17 @@ def ID3(examples, targetAttribute, Attributes):
         else:
             neg += 1
     if neg == 0:
-        root.goodLabel = 1
+        root.goodLabel = True
         return root
     elif pos == 0:
-        root.goodLabel = 0
+        root.goodLabel = False
         return root
     elif len(Attributes) == 0:
         if pos >= neg:
-            root.goodLabel = 1
+            root.goodLabel = True
             return root
         else:
-            root.goodLabel = 0
+            root.goodLabel = False
             return root
     else:
         toBeRemoved = None
@@ -65,21 +65,23 @@ def ID3(examples, targetAttribute, Attributes):
                     cMin = current
             v1 = totalPos / pos
             v2 = totalNeg / neg
-            sMax = (v1 - cMin) / (cMax - cMin)
-            sMin = (v2 - cMin) / (cMax - cMin)
-            if (sMax - sMin) > informationGain:
-                informationGain = (sMax - sMin)
-                toBeRemoved = attribute
-                eMaxPos = maxPos
-                eMinPos = minPos
-                eMaxNeg = maxNeg
-                eMinNeg = minNeg
+            if (cMax - cMin) != 0:
+                sMax = (v1 - cMin) / (cMax - cMin)
+                sMin = (v2 - cMin) / (cMax - cMin)
+                if (sMax - sMin) > informationGain:
+                    informationGain = (sMax - sMin)
+                    toBeRemoved = attribute
+                    eMaxPos = maxPos
+                    eMinPos = minPos
+                    eMaxNeg = maxNeg
+                    eMinNeg = minNeg
         if toBeRemoved == None:
             if pos >= neg:
-                root.goodLabel = 1
+                root.goodLabel = True
+                return root
             else:
-                root.goodLabel = 0
-            return root
+                root.goodLabel = False
+                return root
         cutLine = 0
         if eMinPos > eMaxNeg:
             cutLine = (eMinPos + eMaxNeg) / 2
@@ -89,7 +91,7 @@ def ID3(examples, targetAttribute, Attributes):
             cutLine = (eMaxPos + eMinPos + eMaxNeg + eMinNeg) / 4
         root.cutLine = cutLine
         root.decision = toBeRemoved
-        newAttributes = Attributes.remove(toBeRemoved)
+        Attributes.remove(toBeRemoved)
         leftChild = list()
         leftChildTA = list()
         rightChild = list()
@@ -103,8 +105,8 @@ def ID3(examples, targetAttribute, Attributes):
                 rightChild.append(example)
                 rightChildTA.append(targetAttribute[i])
             i += 1
-        root.leftChild = ID3(leftChild, leftChildTA, newAttributes)
-        root.rightChild = ID3(rightChild, rightChildTA, newAttributes)
+        root.leftChild = ID3(leftChild, leftChildTA, Attributes)
+        root.rightChild = ID3(rightChild, rightChildTA, Attributes)
         return root
 
 def getAnswer(question, tree):
@@ -122,8 +124,10 @@ def getPercent(examples, targetAttribute, tree):
     x=0
     for example in examples:
         answer = getAnswer(example, tree)
-
-        if answer == int(targetAttribute[x]):
+        print(answer)
+        print(targetAttribute[x])
+        print()
+        if bool(answer) == targetAttribute[x]:
             correct += 1
         total += 1
         x += 1
@@ -136,7 +140,7 @@ def parseBoolString(string):
     return string.upper == 'TRUE'
 
 buildFile = "smallishTrain.csv"
-testFile = "smallishTest.csv"
+testFile = "smallishTrain.csv"
 # action = lambda dataLine: print
 
 def parseAndDoSomethingToLineData(fileToParse):
@@ -147,9 +151,17 @@ def parseAndDoSomethingToLineData(fileToParse):
         for line in inFile:
             seperatedLine = line.split(',')
             length = len(seperatedLine)-1
-            targetAttribute.append(seperatedLine[length])
+            start = seperatedLine[length].rstrip('\n')
+            if start == 'FALSE':
+                targetAttribute.append(False)
+            else:
+                targetAttribute.append(True)
+            #targetAttribute.append(bool(seperatedLine[length]))
             eSeperatedLine = seperatedLine[2:length]
-            examples.append(eSeperatedLine)
+            eLSeperateLine = list()
+            for item in eSeperatedLine:
+                eLSeperateLine.append(float(item))
+            examples.append(eLSeperateLine)
         for i in range(0,len(examples[0])):
             Attributes.append(i)
         return ID3(examples, targetAttribute, Attributes)
@@ -161,9 +173,17 @@ def parseQuestionData(fileToParse, tree):
         for line in inFile:
             seperatedLine = line.split(',')
             length = len(seperatedLine)-1
-            targetAttribute.append(seperatedLine[length])
+            start = seperatedLine[length].rstrip('\n')
+            if start == 'FALSE':
+                targetAttribute.append(False)
+            else:
+                targetAttribute.append(True)
+            #targetAttribute.append(seperatedLine[length])
             eSeperatedLine = seperatedLine[2:length]
-            examples.append(eSeperatedLine)
+            eLSeperateLine = list()
+            for item in eSeperatedLine:
+                eLSeperateLine.append(float(item))
+            examples.append(eLSeperateLine)
         print(getPercent(examples, targetAttribute, tree))
 
 def test():
