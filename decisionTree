@@ -124,23 +124,22 @@ def getPercent(examples, targetAttribute, tree):
     x=0
     for example in examples:
         answer = getAnswer(example, tree)
-        print(answer)
-        print(targetAttribute[x])
-        print()
+        #print(answer)
+        #print(targetAttribute[x])
         if bool(answer) == targetAttribute[x]:
             correct += 1
         total += 1
         x += 1
-    print(correct)
-    print(total)
+    #print(correct)
+    #print(total)
     return correct/total
 
 
 def parseBoolString(string):
     return string.upper == 'TRUE'
 
-buildFile = "smallishTrain.csv"
-testFile = "smallishTrain.csv"
+buildFile = "tgmctrain.csv"
+testFile = "tgmctrain.csv"
 # action = lambda dataLine: print
 
 def parseAndDoSomethingToLineData(fileToParse):
