@@ -21,6 +21,17 @@ class CSVParser(object):
         return CSVParser.csvData
 
     @staticmethod
+    def getSeparatedData():
+        falses = []
+        trues = []
+        for answer in CSVParser.csvData:
+            if answer[2] == True:
+                trues.append(answer)
+            else:
+                falses.append(answer)
+        return falses, trues
+
+    @staticmethod
     def parseAndStoreLineData(fileToParse):
         with open(fileToParse) as inFile:
             CSVParser.csvData = []
