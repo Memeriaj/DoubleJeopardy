@@ -111,6 +111,7 @@ def ID3(examples, targetAttribute, Attributes):
         root.rightChild = ID3(rightChild, rightChildTA, Attributes)
         return root
 
+
 def getAnswer(question, tree):
     if tree.goodLabel != None:
         return tree.goodLabel
@@ -120,10 +121,11 @@ def getAnswer(question, tree):
     else:
         return getAnswer(question, tree.rightChild)
 
+
 def getPercent(examples, targetAttribute, tree):
     correct = 0
     total = 0
-    x=0
+    x = 0
     for example in examples:
         answer = getAnswer(example, tree)
         if bool(answer) == targetAttribute[x]:
@@ -132,10 +134,11 @@ def getPercent(examples, targetAttribute, tree):
             correct += 1
         total += 1
         x += 1
-    return correct/total
+    return correct / total
+
 
 def getAnswers(examples, tree):
-    f = open('413Answers.txt','w')
+    f = open('413Answers.txt', 'w')
     for example in examples:
         answer = getAnswer(example[1], tree)
         print(answer)
@@ -148,11 +151,12 @@ def getAnswers(examples, tree):
 def parseBoolString(string):
     return string.upper == 'TRUE'
 
+
 buildFile = "tgmctrain.csv"
 testFile = "tgmctrain.csv"
 #testFile = "smallTrain.csv"
-#workFile = "tgmcevaluation.csv"
-workFile = "smallishTest.csv"
+workFile = "tgmcevaluation.csv"
+#workFile = "smallishTest.csv"
 # action = lambda dataLine: print
 
 def parseAndDoSomethingToLineData(fileToParse):
@@ -162,13 +166,13 @@ def parseAndDoSomethingToLineData(fileToParse):
         Attributes = list()
         for line in inFile:
             seperatedLine = line.split(',')
-            length = len(seperatedLine)-1
+            length = len(seperatedLine) - 1
             start = seperatedLine[length].rstrip('\n')
             if start == 'false':
                 targetAttribute.append(False)
             else:
                 targetAttribute.append(True)
-            #targetAttribute.append(bool(seperatedLine[length]))
+                #targetAttribute.append(bool(seperatedLine[length]))
             eSeperatedLine = seperatedLine[2:length]
             eLSeperateLine = list()
             for item in eSeperatedLine:
@@ -176,10 +180,11 @@ def parseAndDoSomethingToLineData(fileToParse):
             examples.append(eLSeperateLine)
             eSeperatedLine.clear()
             eSeperatedLine.clear()
-        for i in range(0,len(examples[0])):
+        for i in range(0, len(examples[0])):
             Attributes.append(i)
         print("read in done")
         return ID3(examples, targetAttribute, Attributes)
+
 
 def parseQuestionData(fileToParse, tree):
     with open(fileToParse) as inFile:
@@ -187,19 +192,20 @@ def parseQuestionData(fileToParse, tree):
         targetAttribute = list()
         for line in inFile:
             seperatedLine = line.split(',')
-            length = len(seperatedLine)-1
+            length = len(seperatedLine) - 1
             start = seperatedLine[length].rstrip('\n')
             if start == 'false':
                 targetAttribute.append(False)
             else:
                 targetAttribute.append(True)
-            #targetAttribute.append(seperatedLine[length])
+                #targetAttribute.append(seperatedLine[length])
             eSeperatedLine = seperatedLine[2:length]
             eLSeperateLine = list()
             for item in eSeperatedLine:
                 eLSeperateLine.append(float(item))
             examples.append(eLSeperateLine)
         print(getPercent(examples, targetAttribute, tree))
+
 
 def parseEvalData(fileToParse, tree):
     with open(fileToParse) as inFile:
@@ -211,8 +217,9 @@ def parseEvalData(fileToParse, tree):
             eLSeperatedLine = list()
             for item in eSeperatedLine:
                 eLSeperatedLine.append(float(item))
-            examples.append((seperatedLine[0],eLSeperatedLine))
+            examples.append((seperatedLine[0], eLSeperatedLine))
         getAnswers(examples, tree)
+
 
 def treePrinter(tree):
     if tree.goodLabel != None:
@@ -223,12 +230,13 @@ def treePrinter(tree):
         treePrinter(tree.leftChild)
         treePrinter(tree.rightChild)
 
+
 def test():
     tree = parseAndDoSomethingToLineData(buildFile)
     print("tree done")
-    parseQuestionData(testFile, tree)
-    #parseEvalData(workFile,tree)
+    #parseQuestionData(testFile, tree)
+    parseEvalData(workFile, tree)
     #treePrinter(tree)
 
+
 test()
-#holy shit.
