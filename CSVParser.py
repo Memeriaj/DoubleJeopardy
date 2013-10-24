@@ -7,7 +7,7 @@ def parseAndDoSomethingToLineData(fileToParse):
     with open(fileToParse) as inFile:
         for line in inFile:
             seperatedLine = line.split(',')
-            print(seperatedLine)
+            print seperatedLine
 
 
 parseAndDoSomethingToLineData(fileToParse)
