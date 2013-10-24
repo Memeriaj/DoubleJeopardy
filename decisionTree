@@ -89,6 +89,16 @@ def ID3(examples, targetAttribute, Attributes):
             cutLine = (eMinNeg + eMaxPos) / 2
         else:
             cutLine = (eMaxPos + eMinPos + eMaxNeg + eMinNeg) / 4
+        """
+        if eMinPos > eMaxNeg:
+            cutLine = (eMinPos + eMaxNeg) / 2
+        elif eMinNeg > eMaxPos:
+            cutLine = (eMinNeg + eMaxPos) / 2
+        elif eMaxNeg > eMinPos:
+            cutLine = eMaxNeg + (eMaxNeg/1000)
+        else:
+            cutLine = eMinNeg - (eMinNeg/1000)
+        """
         root.cutLine = cutLine
         root.decision = toBeRemoved
         Attributes.remove(toBeRemoved)
