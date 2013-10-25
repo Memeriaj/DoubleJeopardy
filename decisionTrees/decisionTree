@@ -1,0 +1,252 @@
+class node():
+    def __init__(self):
+        self.goodLabel = None
+        self.leftChild = None
+        self.rightChild = None
+        self.decision = None
+        self.cutLine = None
+
+
+def ID3(examples, targetAttribute, Attributes):
+    root = node()
+    pos = 0
+    neg = 0
+    for attribute in targetAttribute:
+        if attribute:
+            pos += 1
+        else:
+            neg += 1
+    if neg == 0:
+        root.goodLabel = True
+        return root
+    elif pos == 0:
+        root.goodLabel = False
+        return root
+    elif len(Attributes) == 0:
+        if pos >= neg:
+            root.goodLabel = True
+            return root
+        else:
+            root.goodLabel = False
+            return root
+    else:
+        toBeRemoved = None
+        informationGain = 0
+        totalPos = 0
+        totalNeg = 0
+        eMaxPos = None
+        eMinPos = None
+        eMaxNeg = None
+        eMinNeg = None
+        for attribute in Attributes:
+            maxPos = 0
+            minPos = 1000
+            maxNeg = 0
+            minNeg = 1000
+            cMax = 0
+            cMin = 1000
+            for i in range(0, len(examples) - 1):
+                current = examples[i][attribute]
+                if targetAttribute[i]:
+                    totalPos += current
+                    if current > maxPos:
+                        maxPos = current
+                    elif current < minPos:
+                        minPos = current
+                else:
+                    totalNeg += current
+                    if current > maxNeg:
+                        maxNeg = current
+                    elif current < minNeg:
+                        minNeg = current
+                if current > cMax:
+                    cMax = current
+                if current < cMin:
+                    cMin = current
+            v1 = totalPos / pos
+            v2 = totalNeg / neg
+            if (cMax - cMin) != 0:
+                sMax = (v1 - cMin) / (cMax - cMin)
+                sMin = (v2 - cMin) / (cMax - cMin)
+                if (sMax - sMin) > informationGain:
+                    informationGain = (sMax - sMin)
+                    toBeRemoved = attribute
+                    eMaxPos = maxPos
+                    eMinPos = minPos
+                    eMaxNeg = maxNeg
+                    eMinNeg = minNeg
+        if toBeRemoved == None:
+            if pos >= neg:
+                root.goodLabel = True
+                return root
+            else:
+                root.goodLabel = False
+                return root
+        cutLine = 0
+        if eMinPos > eMaxNeg:
+            cutLine = (eMinPos + eMaxNeg) / 2
+        elif eMinNeg > eMaxPos:
+            cutLine = (eMinNeg + eMaxPos) / 2
+        else:
+            cutLine = (eMaxPos + eMinPos + eMaxNeg + eMinNeg) / 4
+        """
+        if eMinPos > eMaxNeg:
+            cutLine = (eMinPos + eMaxNeg) / 2
+        elif eMinNeg > eMaxPos:
+            cutLine = (eMinNeg + eMaxPos) / 2
+        elif eMaxNeg > eMinPos:
+            cutLine = eMaxNeg + (eMaxNeg/1000)
+        else:
+            cutLine = eMinNeg - (eMinNeg/1000)
+        """
+        root.cutLine = cutLine
+        root.decision = toBeRemoved
+        Attributes.remove(toBeRemoved)
+        print(root.decision)
+        print(root.cutLine)
+        leftChild = list()
+        leftChildTA = list()
+        rightChild = list()
+        rightChildTA = list()
+        i = 0
+        for example in examples:
+            if example[toBeRemoved] < cutLine:
+                leftChild.append(example)
+                leftChildTA.append(targetAttribute[i])
+            else:
+                rightChild.append(example)
+                rightChildTA.append(targetAttribute[i])
+            i += 1
+        root.leftChild = ID3(leftChild, leftChildTA, Attributes)
+        root.rightChild = ID3(rightChild, rightChildTA, Attributes)
+        return root
+
+
+def getAnswer(question, tree):
+    if tree.goodLabel != None:
+        return tree.goodLabel
+    point = question[tree.decision]
+    if point <= tree.cutLine:
+        return getAnswer(question, tree.leftChild)
+    else:
+        return getAnswer(question, tree.rightChild)
+
+
+def getPercent(examples, targetAttribute, tree):
+    correct = 0
+    total = 0
+    x = 0
+    for example in examples:
+        answer = getAnswer(example, tree)
+        if bool(answer) == targetAttribute[x]:
+            if bool(answer):
+                print(targetAttribute[x])
+            correct += 1
+        total += 1
+        x += 1
+    return correct / total
+
+
+def getAnswers(examples, tree):
+    f = open('413Answers.txt', 'w')
+    for example in examples:
+        answer = getAnswer(example[1], tree)
+        print(answer)
+        if answer:
+            f.write(example[0])
+            f.write('\n')
+    f.close()
+
+
+def parseBoolString(string):
+    return string.upper == 'TRUE'
+
+
+buildFile = "tgmctrain.csv"
+testFile = "tgmctrain.csv"
+#testFile = "smallTrain.csv"
+workFile = "tgmcevaluation.csv"
+#workFile = "smallishTest.csv"
+# action = lambda dataLine: print
+
+def parseAndDoSomethingToLineData(fileToParse):
+    with open(fileToParse) as inFile:
+        examples = list()
+        targetAttribute = list()
+        Attributes = list()
+        for line in inFile:
+            seperatedLine = line.split(',')
+            length = len(seperatedLine) - 1
+            start = seperatedLine[length].rstrip('\n')
+            if start == 'false':
+                targetAttribute.append(False)
+            else:
+                targetAttribute.append(True)
+                #targetAttribute.append(bool(seperatedLine[length]))
+            eSeperatedLine = seperatedLine[2:length]
+            eLSeperateLine = list()
+            for item in eSeperatedLine:
+                eLSeperateLine.append(float(item))
+            examples.append(eLSeperateLine)
+            eSeperatedLine.clear()
+            eSeperatedLine.clear()
+        for i in range(0, len(examples[0])):
+            Attributes.append(i)
+        print("read in done")
+        return ID3(examples, targetAttribute, Attributes)
+
+
+def parseQuestionData(fileToParse, tree):
+    with open(fileToParse) as inFile:
+        examples = list()
+        targetAttribute = list()
+        for line in inFile:
+            seperatedLine = line.split(',')
+            length = len(seperatedLine) - 1
+            start = seperatedLine[length].rstrip('\n')
+            if start == 'false':
+                targetAttribute.append(False)
+            else:
+                targetAttribute.append(True)
+                #targetAttribute.append(seperatedLine[length])
+            eSeperatedLine = seperatedLine[2:length]
+            eLSeperateLine = list()
+            for item in eSeperatedLine:
+                eLSeperateLine.append(float(item))
+            examples.append(eLSeperateLine)
+        print(getPercent(examples, targetAttribute, tree))
+
+
+def parseEvalData(fileToParse, tree):
+    with open(fileToParse) as inFile:
+        examples = list()
+        for line in inFile:
+            seperatedLine = line.split(',')
+            length = len(seperatedLine)
+            eSeperatedLine = seperatedLine[2:length]
+            eLSeperatedLine = list()
+            for item in eSeperatedLine:
+                eLSeperatedLine.append(float(item))
+            examples.append((seperatedLine[0], eLSeperatedLine))
+        getAnswers(examples, tree)
+
+
+def treePrinter(tree):
+    if tree.goodLabel != None:
+        print(tree.goodLabel)
+    else:
+        print(tree.decision)
+        print(tree.cutLine)
+        treePrinter(tree.leftChild)
+        treePrinter(tree.rightChild)
+
+
+def test():
+    tree = parseAndDoSomethingToLineData(buildFile)
+    print("tree done")
+    #parseQuestionData(testFile, tree)
+    parseEvalData(workFile, tree)
+    #treePrinter(tree)
+
+
+test()
