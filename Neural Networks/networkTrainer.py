@@ -25,11 +25,14 @@ class NetworkTrainer:
 
                 if answerNumber%1000 == 0:
                     print "On answer ", answerNumber
+
                 answerNumber += 1
-            #print "Actual Outputs: ", actualOutputs
+            print "Actual Outputs: ", actualOutputs
             overallError = network.calculateOverallError(len(inputData), actualOutputs, expectedOutputs)
+
             print "Overall Error: ", overallError
             print ""
+
             if lastError is None:
                 lastError = overallError
             elif abs(overallError - lastError) < 1:

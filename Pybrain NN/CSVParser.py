@@ -1,9 +1,8 @@
 import sys
-import pyavltree
-from pyavltree import AVLTree
 
 
 class CSVParser(object):
+    trainingData = "../tgmctrain.csv"
     trainingData = "../refinedTraining.csv"
     evalData = "../tgmcevaluation.csv"
     csvData = []
@@ -25,7 +24,7 @@ class CSVParser(object):
         falses = []
         trues = []
         for answer in CSVParser.csvData:
-            if answer[2] == True:
+            if answer[2] == 1:
                 trues.append(answer)
             else:
                 falses.append(answer)
@@ -42,12 +41,12 @@ class CSVParser(object):
                     answerValues.append(float(separatedLine[index]))
                 questionKey = int(float(separatedLine[1]))
                 answerKey = int(float(separatedLine[0]))
-                trueFalse = False
+                trueFalse = 1
                 stringBool = separatedLine[-1].rstrip("\n")
                 if stringBool == 'false' or stringBool == 'false\n' or stringBool == 'False\n' or stringBool == 'False':
-                    trueFalse = False
+                    trueFalse = 0
                 elif stringBool == 'true' or stringBool == 'true\n' or stringBool == 'True\n' or stringBool == 'True':
-                    trueFalse = True
+                    trueFalse = 1
                 else:
                     print "WE DIDN'T FIND A BOOLEAN!!!!"
                     return

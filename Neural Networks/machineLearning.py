@@ -8,10 +8,11 @@ def main():
     CSVParser.parseTrainingData()
     data = CSVParser.getData()
     falseData, trueData = CSVParser.getSeparatedData()
+    print "False data size: ", len(falseData)
+    print "True Data size: ", len(trueData)
     sampledFalses = randomSampleOfData(falseData, len(trueData))
-    sampledData = []
-    sampledData.extend(trueData)
-    sampledData.extend(sampledFalses)
+    sampledData = layer_answers(trueData, sampledFalses)
+    print "Training Size: ", len(sampledData)
     print "Finished Getting Data"
     momentum = 0.3
     learningRate = 0.01
@@ -40,6 +41,16 @@ def randomSampleOfData(falseData, numberToSample):
             randomData.append(falseData[index])
             uniqueIndexes += 1
     return randomData
+
+def layer_answers(true_data, false_data):
+    if len(true_data) != len(false_data):
+        print "For some reason, there are different numbers of trues and falses"
+        return []
+    to_return = []
+    for i in range(0, len(false_data)):
+        to_return.append(false_data[i])
+        to_return.append(true_data[i])
+    return to_return
 
 
 if __name__ == '__main__':
