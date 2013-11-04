@@ -5,8 +5,12 @@ from pybrain.datasets.supervised import SupervisedDataSet
 from pybrain.tools.shortcuts import buildNetwork
 from pybrain.structure.modules import *
 from pybrain.supervised.trainers import BackpropTrainer
+import pickle
 
 def main():
+    get_eval_results()
+
+def train_and_save_network():
     CSVParser.parseTrainingData()
 
     data = CSVParser.getData()
@@ -29,11 +33,11 @@ def main():
     pybrain_dataset = SupervisedDataSet(len(data[0][3]), 1)
     add_samples_to_pybrain_dataset(pybrain_dataset, sampled_data)
 
-    network = buildNetwork(len(data[0][3]), 40, 1, bias=True,
+    network = buildNetwork(len(data[0][3]), 100, 1, bias=True,
                            hiddenclass=SigmoidLayer, outclass=SigmoidLayer)
 
     print "Made the network, now making the trainer"
-    trainer = BackpropTrainer(network, pybrain_dataset, 0.01, 1.0, 0.1)
+    trainer = BackpropTrainer(network, pybrain_dataset, 0.01, 1.0, 0.3)
     print "Made the trainer, now training for 10 epochs"
     error = trainer.trainUntilConvergence(None, 50, True, 50)
 
@@ -41,8 +45,35 @@ def main():
     check_network_against_dataset(network, sampled_data)
 
     #TODO: Write code to save the network after it is done running
-    #f = open("NeuralNetworkConfigurations/trained.nn", "w")
-    #f.write(network.toFile())
+    f = open("../NeuralNetworkConfigurations/trainedMedium.nn", "w")
+    pickle.dump(network, f)
+    f.close()
+
+
+def get_eval_results():
+    CSVParser.parseEvalData()
+
+    data = CSVParser.getData()
+
+    print "Finished Getting Data"
+
+    f = open("../NeuralNetworkConfigurations/trained.nn", "r")
+    network = pickle.load(f)
+    answers = []
+
+    for answer_candidate in data:
+        output = network.activate(answer_candidate[2])
+        if output > 0.5:
+            answers.append(answer_candidate[1])
+
+    #TODO: Write code to save the network after it is done running
+    f = open("../answersToCheck.txt", "w")
+    for to_print in answers:
+        string = str(to_print)+"\n"
+        hello = string
+        count = hello.count("0")
+        f.write(string)
+    f.close()
 
 
 def random_sample_of_data(falseData, numberToSample):

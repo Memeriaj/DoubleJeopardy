@@ -89,16 +89,6 @@ def ID3(examples, targetAttribute, Attributes):
             cutLine = (eMinNeg + eMaxPos) / 2
         else:
             cutLine = (eMaxPos + eMinPos + eMaxNeg + eMinNeg) / 4
-        """
-        if eMinPos > eMaxNeg:
-            cutLine = (eMinPos + eMaxNeg) / 2
-        elif eMinNeg > eMaxPos:
-            cutLine = (eMinNeg + eMaxPos) / 2
-        elif eMaxNeg > eMinPos:
-            cutLine = eMaxNeg + (eMaxNeg/1000)
-        else:
-            cutLine = eMinNeg - (eMinNeg/1000)
-        """
         root.cutLine = cutLine
         root.decision = toBeRemoved
         Attributes.remove(toBeRemoved)
@@ -162,40 +152,6 @@ def parseBoolString(string):
     return string.upper == 'TRUE'
 
 
-buildFile = "tgmctrain.csv"
-testFile = "tgmctrain.csv"
-#testFile = "smallTrain.csv"
-workFile = "tgmcevaluation.csv"
-#workFile = "smallishTest.csv"
-# action = lambda dataLine: print
-
-def parseAndDoSomethingToLineData(fileToParse):
-    with open(fileToParse) as inFile:
-        examples = list()
-        targetAttribute = list()
-        Attributes = list()
-        for line in inFile:
-            seperatedLine = line.split(',')
-            length = len(seperatedLine) - 1
-            start = seperatedLine[length].rstrip('\n')
-            if start == 'false':
-                targetAttribute.append(False)
-            else:
-                targetAttribute.append(True)
-                #targetAttribute.append(bool(seperatedLine[length]))
-            eSeperatedLine = seperatedLine[2:length]
-            eLSeperateLine = list()
-            for item in eSeperatedLine:
-                eLSeperateLine.append(float(item))
-            examples.append(eLSeperateLine)
-            eSeperatedLine.clear()
-            eSeperatedLine.clear()
-        for i in range(0, len(examples[0])):
-            Attributes.append(i)
-        print("read in done")
-        return ID3(examples, targetAttribute, Attributes)
-
-
 def parseQuestionData(fileToParse, tree):
     with open(fileToParse) as inFile:
         examples = list()
@@ -238,15 +194,3 @@ def treePrinter(tree):
         print(tree.decision)
         print(tree.cutLine)
         treePrinter(tree.leftChild)
-        treePrinter(tree.rightChild)
-
-
-def test():
-    tree = parseAndDoSomethingToLineData(buildFile)
-    print("tree done")
-    #parseQuestionData(testFile, tree)
-    parseEvalData(workFile, tree)
-    #treePrinter(tree)
-
-
-test()
