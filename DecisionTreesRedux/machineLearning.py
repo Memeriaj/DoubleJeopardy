@@ -23,14 +23,15 @@ def train_and_save_network():
     trees = list()
     max_index = 0
     max_score = 0
-    for k in range(0, 50):
-        sampled_falses = random_sample_of_data(false_data, len(true_data))
-        sampled_data = layer_answers(true_data, sampled_falses)
-        sampled_tree_data, sampled_tree_answers = return_data_and_answers_separately(sampled_data)
-
-        tree = ID3(sampled_tree_data, sampled_tree_answers, range(0, len(sampled_tree_data[0])))
+    for k in range(0, 2):
+        #sampled_falses = random_sample_of_data(false_data, len(true_data))
+        #sampled_data = layer_answers(true_data, sampled_falses)
+        #sampled_tree_data, sampled_tree_answers = return_data_and_answers_separately(sampled_data)
+        sampled_tree_data = all_tree_data
+        sampled_tree_answers = all_tree_answers
+        #tree = ID3(sampled_tree_data, sampled_tree_answers, range(0, len(sampled_tree_data[0])))
+        tree = ID3(all_tree_data, all_tree_answers, range(0, len(all_tree_data[0])))
         trees.append(tree)
-        #tree = ID3(all_tree_data, all_tree_answers, range(0, len(sampled_tree_data[0])))
         tree_results = list()
         for line in sampled_tree_data:
             tree_results.append(getAnswer(line, tree))
